@@ -1,0 +1,6 @@
+---
+# Default variables for install-eset role
+mysql_root_password: "StrongRootPass!2024"
+eset_admin_password: "EsetAdminPass!2024"
+db_user_username: "era_user"
+db_user_password: "StrongDbPass!2024"

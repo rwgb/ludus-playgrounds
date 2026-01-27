@@ -1,0 +1,48 @@
+ludus:
+  - vm_name: "{{ range_id }}-ad-dc-win2022"
+    hostname: "DC01"
+    template: win2022-server-x64-template
+    vlan: 10
+    ip_last_octet: 10
+    ram_gb: 4
+    cpus: 2
+    windows:
+      sysprep: true
+    domain:
+      fqdn: corp.local
+      role: primary-dc
+    roles:
+      - ludus-adcs
+
+  - vm_name: "{{ range_id }}-win11-client"
+    hostname: "WS01"
+    template: win11-22h2-x64-enterprise-template
+    vlan: 10
+    ip_last_octet: 20
+    ram_gb: 4
+    cpus: 2
+    windows:
+      sysprep: true
+    domain:
+      fqdn: corp.local
+      role: member
+    roles:
+      - ludus-install-chrome
+
+  - vm_name: "{{ range_id }}-kali"
+    hostname: "kali"
+    template: kali-x64-desktop-template
+    vlan: 99
+    ip_last_octet: 10
+    ram_gb: 4
+    cpus: 2
+    linux: true
+    
+  - vm_name: "{{ range_id }}-ubuntu-server"
+    hostname: "ubuntu-srv"
+    template: ubuntu-22-04-x64-server-template
+    vlan: 20
+    ip_last_octet: 10
+    ram_gb: 2
+    cpus: 2
+    linux: true

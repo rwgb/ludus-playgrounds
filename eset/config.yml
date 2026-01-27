@@ -1,0 +1,86 @@
+ludus:
+  - vm_name: "{{ range_id }}-ad-dc-win2022"
+    hostname: "DC01"
+    template: win2022-server-x64-eset-template
+    vlan: 10
+    ip_last_octet: 15
+    ram_gb: 4
+    cpus: 2
+    windows:
+      sysprep: true
+    domain:
+      fqdn: corp.local
+      role: primary-dc
+    roles:
+      - disable-software-restrictions
+
+  - vm_name: "{{ range_id }}-ubuntu-eset-server"
+    hostname: "eset-server"
+    template: ubuntu-24.04-x64-server-template
+    vlan: 10
+    ip_last_octet: 10
+    ram_gb: 4
+    cpus: 2
+    linux: true
+    roles:
+      - install-eset
+
+  - vm_name: "{{ range_id }}-win-server-01"
+    hostname: "SRV01"
+    template: win2022-server-x64-eset-template
+    vlan: 10
+    ip_last_octet: 21
+    ram_gb: 4
+    cpus: 2
+    windows:
+      sysprep: true
+    domain:
+      fqdn: corp.local
+      role: member
+    roles:
+      - disable-software-restrictions
+
+  - vm_name: "{{ range_id }}-win-server-02"
+    hostname: "SRV02"
+    template: win2022-server-x64-eset-template
+    vlan: 10
+    ip_last_octet: 22
+    ram_gb: 4
+    cpus: 2
+    windows:
+      sysprep: true
+    domain:
+      fqdn: corp.local
+      role: member
+    roles:
+      - disable-software-restrictions
+
+  - vm_name: "{{ range_id }}-win-server-03"
+    hostname: "SRV03"
+    template: win2022-server-x64-eset-template
+    vlan: 10
+    ip_last_octet: 23
+    ram_gb: 4
+    cpus: 2
+    windows:
+      sysprep: true
+    domain:
+      fqdn: corp.local
+      role: member
+    roles:
+      - disable-software-restrictions
+
+  - vm_name: "{{ range_id }}-win-server-04"
+    hostname: "SRV04"
+    template: win2022-server-x64-eset-template
+    vlan: 10
+    ip_last_octet: 24
+    ram_gb: 4
+    cpus: 2
+    windows:
+      sysprep: true
+    domain:
+      fqdn: corp.local
+      role: member
+    roles:
+      - disable-software-restrictions

@@ -1,0 +1,31 @@
+---
+- name: Download ESET installation script
+  ansible.builtin.get_url:
+    url: https://raw.githubusercontent.com/rwgb/eset.epop.tools/dev/scripts/linux/install-eset.sh
+    dest: /tmp/install-eset.sh
+    mode: '0755'
+  become: yes
+
+- name: Execute ESET installation script
+  ansible.builtin.shell: /tmp/install-eset.sh
+  args:
+    executable: /bin/bash
+  environment:
+    MYSQL_ROOT_PASSWORD: "{{ mysql_root_password | default('StrongRootPass!2024') }}"
+    ESET_ADMIN_PASSWORD: "{{ eset_admin_password | default('EsetAdminPass!2024') }}"
+    DB_USER_USERNAME: "{{ db_user_username | default('era_user') }}"
+    DB_USER_PASSWORD: "{{ db_user_password | default('StrongDbPass!2024') }}"
+  become: yes
+  register: eset_install_result
+  async: 3600
+  poll: 30
+
+- name: Display ESET installation output
+  ansible.builtin.debug:
+    var: eset_install_result.stdout_lines
+  when: eset_install_result.stdout_lines is defined
+
+- name: Display ESET installation errors
+  ansible.builtin.debug:
+    var: eset_install_result.stderr_lines
+  when: eset_install_result.stderr_lines is defined

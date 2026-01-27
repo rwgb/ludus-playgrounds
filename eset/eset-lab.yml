@@ -1,0 +1,10 @@
+---
+- name: Install ESET on Ubuntu server
+  hosts: eset-server
+  become: yes
+  tasks:
+    - name: Download and execute ESET installation script
+      ansible.builtin.shell: |
+        curl -fsSL https://raw.githubusercontent.com/rwgb/eset.epop.tools/dev/scripts/linux/install-eset.sh | bash
+      args:
+        executable: /bin/bash

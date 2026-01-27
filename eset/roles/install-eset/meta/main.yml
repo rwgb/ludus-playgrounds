@@ -1,0 +1,20 @@
+---
+galaxy_info:
+  role_name: install-eset
+  author: RB
+  description: Install ESET security software on Ubuntu servers
+  company: 
+  license: MIT
+  min_ansible_version: 2.9
+  platforms:
+    - name: Ubuntu
+      versions:
+        - focal
+        - jammy
+        - noble
+  galaxy_tags:
+    - security
+    - eset
+    - endpoint
+
+dependencies: []

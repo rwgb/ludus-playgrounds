@@ -1,0 +1,103 @@
+---
+- name: Diagnose WinRM connectivity and Windows readiness
+  hosts: all
+  gather_facts: no
+  tasks:
+    - name: Test basic connectivity (ping)
+      ansible.builtin.ping:
+      register: ping_result
+      ignore_errors: yes
+      
+    - name: Display ping result
+      ansible.builtin.debug:
+        msg: "Ping {{ 'succeeded' if ping_result is succeeded else 'FAILED' }}"
+      
+    - name: Wait for WinRM to be available
+      ansible.builtin.wait_for:
+        host: "{{ ansible_host }}"
+        port: 5986
+        timeout: 60
+        state: started
+      delegate_to: localhost
+      register: winrm_wait
+      ignore_errors: yes
+      
+    - name: Display WinRM port status
+      ansible.builtin.debug:
+        msg: "WinRM port 5986 {{ 'is OPEN' if winrm_wait is succeeded else 'is CLOSED or TIMEOUT' }}"
+      
+    - name: Get Windows service status (if WinRM is up)
+      ansible.windows.win_shell: |
+        $services = @('WinRM', 'W32Time', 'Netlogon', 'ADWS')
+        $services | ForEach-Object {
+          $svc = Get-Service -Name $_ -ErrorAction SilentlyContinue
+          if ($svc) {
+            "$_`: $($svc.Status)"
+          } else {
+            "$_`: NOT FOUND"
+          }
+        }
+      register: service_status
+      ignore_errors: yes
+      when: winrm_wait is succeeded
+      
+    - name: Display service status
+      ansible.builtin.debug:
+        var: service_status.stdout_lines
+      when: service_status is defined and service_status is succeeded
+      
+    - name: Get system uptime (if WinRM is up)
+      ansible.windows.win_shell: |
+        $os = Get-CimInstance Win32_OperatingSystem
+        $uptime = (Get-Date) - $os.LastBootUpTime
+        "Uptime: $($uptime.Days) days, $($uptime.Hours) hours, $($uptime.Minutes) minutes"
+        "Last Boot: $($os.LastBootUpTime)"
+      register: uptime_info
+      ignore_errors: yes
+      when: winrm_wait is succeeded
+      
+    - name: Display uptime
+      ansible.builtin.debug:
+        var: uptime_info.stdout_lines
+      when: uptime_info is defined and uptime_info is succeeded
+      
+    - name: Check if domain-joined (if WinRM is up)
+      ansible.windows.win_shell: |
+        $cs = Get-WmiObject Win32_ComputerSystem
+        "Domain: $($cs.Domain)"
+        "Part of Domain: $($cs.PartOfDomain)"
+      register: domain_info
+      ignore_errors: yes
+      when: winrm_wait is succeeded
+      
+    - name: Display domain status
+      ansible.builtin.debug:
+        var: domain_info.stdout_lines
+      when: domain_info is defined and domain_info is succeeded
+      
+    - name: Get Windows Update status (if WinRM is up)
+      ansible.windows.win_shell: |
+        $session = New-Object -ComObject Microsoft.Update.Session
+        $searcher = $session.CreateUpdateSearcher()
+        try {
+          $result = $searcher.Search("IsInstalled=0")
+          "Pending Updates: $($result.Updates.Count)"
+        } catch {
+          "Windows Update status: $_"
+        }
+      register: update_status
+      ignore_errors: yes
+      when: winrm_wait is succeeded
+      
+    - name: Display update status
+      ansible.builtin.debug:
+        var: update_status.stdout_lines
+      when: update_status is defined and update_status is succeeded
+      
+    - name: Summary
+      ansible.builtin.debug:
+        msg: |
+          === Diagnostics Summary for {{ inventory_hostname }} ===
+          Ping: {{ 'OK' if ping_result is succeeded else 'FAILED' }}
+          WinRM (5986): {{ 'OPEN' if winrm_wait is succeeded else 'TIMEOUT/CLOSED' }}
+          Details above show service status, uptime, and domain info if WinRM was accessible
