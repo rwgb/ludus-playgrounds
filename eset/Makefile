@@ -100,7 +100,6 @@ upload-roles:
 	ludus ansible role add -d roles/install-eset-bridge-rds
 	ludus ansible role add -d roles/download-eset-inspector
 	ludus ansible role add -d roles/configure-domain-user
-	ludus ansible role add -d roles/modify-eset-uuid
 
 # List installed ansible roles
 list-roles:

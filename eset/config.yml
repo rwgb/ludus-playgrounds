@@ -12,7 +12,7 @@ ludus:
 
   - vm_name: "{{ range_id }}-eee-esa"
     hostname: "SRV01"
-    template: win2022-server-x64-eset-template
+    template: win2022-server-x64-template
     vlan: 10
     ip_last_octet: 21
     ram_gb: 4
@@ -31,7 +31,7 @@ ludus:
 
   - vm_name: "{{ range_id }}-bridge-rds"
     hostname: "SRV02"
-    template: win2022-server-x64-eset-template
+    template: win2022-server-x64-template
     vlan: 10
     ip_last_octet: 22
     ram_gb: 4
@@ -48,7 +48,7 @@ ludus:
 
   - vm_name: "{{ range_id }}-eei"
     hostname: "SRV03"
-    template: win2022-server-x64-eset-template
+    template: win2022-server-x64-template
     vlan: 10
     ip_last_octet: 23
     ram_gb: 4
@@ -65,7 +65,7 @@ ludus:
 
   - vm_name: "{{ range_id }}-win11-workstation"
     hostname: "WIN11"
-    template: win11-22h2-x64-enterprise-template
+    template: win11-22h2-x64-template
     vlan: 10
     ip_last_octet: 30
     ram_gb: 4
