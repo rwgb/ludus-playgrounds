@@ -1,0 +1,327 @@
+# ESET Protect On-Prem Required Domains
+# Source: https://support.eset.com/en/kb332
+
+# Detection Engine Updates
+um01.eset.com
+um02.eset.com
+um03.eset.com
+um04.eset.com
+um05.eset.com
+um06.eset.com
+um07.eset.com
+um08.eset.com
+um09.eset.com
+um10.eset.com
+um11.eset.com
+um12.eset.com
+um13.eset.com
+um14.eset.com
+um15.eset.com
+um16.eset.com
+um17.eset.com
+um21.eset.com
+um23.eset.com
+um01.cn.eset.com
+update.eset.com
+eu-update.eset.com
+us-update.eset.com
+
+# Pico Updates
+pico.eset.com
+
+# Product Downloads
+download.eset.com
+download.liveinstaller.eset.systems
+
+# Expiration & Licensing
+expire.eset.com
+edf.eset.com
+
+# Support Requests
+suppreq.eset.eu
+
+# ESET Secure Authentication
+ecp.eset.systems
+esa.eset.com
+m.esa.eset.com
+h1-esa01.eset.com
+h1-esa02.eset.com
+h1-esa03.eset.com
+h1-esa04.eset.com
+h3-esa2-01-v.eset.com
+h3-esa2-02-v.eset.com
+h3-esa2-03-v.eset.com
+h3-esa2-04-v.eset.com
+
+# LiveGrid Reputation Database
+h1-c01.eset.com
+h1-c02.eset.com
+h1-c03.eset.com
+h1-c04.eset.com
+h1-c05.eset.com
+h1-c06.eset.com
+h1-c07.eset.com
+h3-c01.eset.com
+h3-c02.eset.com
+h3-c03.eset.com
+h3-c04.eset.com
+h3-c05.eset.com
+h3-c06.eset.com
+h3-c07.eset.com
+h5-c01.eset.com
+h5-c02.eset.com
+h5-c03.eset.com
+h5-c04.eset.com
+h5-c05.eset.com
+avcloud.e5.sk
+dnsj.e5.sk
+livegrid.eset.systems
+a.livegrid.eset.systems
+i1.livegrid.eset.systems
+i3.livegrid.eset.systems
+i4.livegrid.eset.systems
+i5.livegrid.eset.systems
+u.eset.com
+c.eset.com
+a.c.eset.com
+i1.c.eset.com
+i3.c.eset.com
+i4.c.eset.com
+i5.c.eset.com
+
+# Advanced Machine Learning
+h1-aidc01.eset.com
+h3-aidc01.eset.com
+h5-aidc01.eset.com
+augur.scanners.eset.systems
+
+# Threat Lab Submissions
+tsm09.eset.com
+tsm10.eset.com
+tsm11.eset.com
+tsm12.eset.com
+tsm13.eset.com
+tsm14.eset.com
+tsm15.eset.com
+tsm16.eset.com
+tsm17.eset.com
+tsm18.eset.com
+tsm19.eset.com
+tsm20.eset.com
+tsm21.eset.com
+tsm22.eset.com
+tsm23.eset.com
+tsm24.eset.com
+tsm25.eset.com
+edtd-ts.eset.com
+
+# Web Control/Parental Control
+h1-arsp01-v.eset.com
+h1-arsp02-v.eset.com
+h3-arsp01-v.eset.com
+h3-arsp02-v.eset.com
+h5-arsp01-v.eset.com
+h5-arsp02-v.eset.com
+
+# Password Manager
+eset-prod-ca48648d0ce7cadf.elb.eu-central-1.amazonaws.com
+
+# Antispam
+h1-ars01-v.eset.com
+h1-ars02-v.eset.com
+h1-ars03-v.eset.com
+h1-ars04-v.eset.com
+h1-ars05-v.eset.com
+h1-ars06.eset.com
+h1-ars07.eset.com
+h1-ars08.eset.com
+h3-ars01-v.eset.com
+h3-ars02-v.eset.com
+h3-ars03-v.eset.com
+h3-ars04-v.eset.com
+h3-ars05-v.eset.com
+h3-ars06.eset.com
+h3-ars07.eset.com
+h3-ars08.eset.com
+h5-ars01-v.eset.com
+h5-ars02-v.eset.com
+h5-ars03-v.eset.com
+h5-ars04-v.eset.com
+h5-ars05-v.eset.com
+h5-ars06.eset.com
+h1-tesla01.eset.com
+h3-tesla01.eset.com
+h5-tesla01.eset.com
+dns.e5.sk
+salt.e5.sk
+rsys.e5.sk
+arb.e5.sk
+asplog.e5.sk
+mri.e5.sk
+ipt.e5.sk
+sample.e5.sk
+stat.e5.sk
+setting.e5.sk
+gid.e5.sk
+
+# GUI and Redirection
+go.eset.com
+go.eset.eu
+support-go.eset.eu
+h1-redir02-v.eset.com
+h3-redir02-v.eset.com
+
+# Mobile Security
+reg01.eset.com
+reg02.eset.com
+reg03.eset.com
+reg04.eset.com
+
+# ESET Data Framework
+h1-edfspy02-v.eset.com
+h1-arse01-v.eset.com
+h1-arse02-v.eset.com
+h3-arse01-v.eset.com
+h3-arse02-v.eset.com
+h5-arse01-v.eset.com
+h5-arse02-v.eset.com
+h5-arse03-v.eset.com
+h5-arse04-v.eset.com
+
+# ESET Repository (ESET PROTECT On-Prem)
+repository.eset.com
+repous.wip.eset.com
+us-repository.eset.com
+us-repository.gtm.eset.com
+h5-repository03-v.eset.com
+reponocdn.wip.eset.com
+h1-repo01-v.eset.com
+hp-webs01-s.eset.com
+h1-repository01-v.eset.com
+h3-repository02-v.eset.com
+nocdn-repository.gtm.eset.com
+repositorynocdn.eset.com
+
+# ESET PROTECT
+eba.eset.com
+msp.eset.com
+identity.eset.com
+protect.eset.com
+protecthub.eset.com
+eu02.protect.eset.com
+us02.protect.eset.com
+jp02.protect.eset.com
+ca01.protect.eset.com
+de01.protect.eset.com
+redirector.eset.systems
+
+# ESET Inspect
+inspect.eset.com
+eu01.inspect.eset.com
+us01.inspect.eset.com
+jp01.inspect.eset.com
+ca01.inspect.eset.com
+de01.inspect.eset.com
+eu01.agent.edr.eset.systems
+us01.agent.edr.eset.systems
+jp01.agent.edr.eset.systems
+ca01.agent.edr.eset.systems
+de01.agent.edr.eset.systems
+
+# ESET Connect
+connect.eset.com
+
+# Push Notification Service
+epns.eset.com
+h1-epnsbroker01.eset.com
+h1-epnsbroker02.eset.com
+h1-epnsbroker03.eset.com
+h1-epnsbroker04.eset.com
+h1-epnsbroker05.eset.com
+h1-epnsbroker06.eset.com
+h1-epnsbroker07.eset.com
+h3-epnsbroker01.eset.com
+h3-epnsbroker02.eset.com
+h3-epnsbroker03.eset.com
+h3-epnsbroker04.eset.com
+h3-epnsbroker05.eset.com
+h3-epnsbroker06.eset.com
+h3-epnsbroker07.eset.com
+h5-epnsbroker01.eset.com
+h5-epnsbroker02.eset.com
+h5-epnsbroker03.eset.com
+h5-epnsbroker04.eset.com
+h5-epnsbroker05.eset.com
+h5-epnsbroker06.eset.com
+h5-epnsbroker07.eset.com
+
+# LiveGuard Advanced
+r.edtd.eset.com
+d.edtd.eset.com
+
+# Services
+proxy.eset.com
+h1-weblb01-v.eset.com
+h3-weblb01-v.eset.com
+iploc.eset.com
+pki.eset.com
+versioncheck.eset.com
+trace.eset.com
+ipm.eset.com
+banner.eset.com
+proxy-detection.eset.com
+
+# Online Help
+help.eset.com
+support.eset.com
+int.form.eset.com
+
+# MSP Utility
+ftp.eset.sk
+mspapi.esetsoftware.com
+
+# DNS Load Balancers
+h1-f5lb01-s.eset.com
+h3-f5lb01-s.eset.com
+h5-f5lb01-s.eset.com
+h1-f5gtm01-s.eset.com
+h3-f5gtm01-s.eset.com
+h5-f5gtm01-s.eset.com
+
+# Telemetry
+gallup.eset.com
+
+# OAuth2 for Microsoft (Email Forwarding)
+login.microsoftonline.com
+
+# MDM Services
+eu.mdm.eset.com
+us.mdm.eset.com
+jp.mdm.eset.com
+ca.mdm.eset.com
+de.mdm.eset.com
+checkin.eu.mdm.eset.com
+checkin.us.mdm.eset.com
+checkin.jp.mdm.eset.com
+checkin.ca.mdm.eset.com
+checkin.de.mdm.eset.com
+mdmcomm.eu.mdm.eset.com
+mdmcomm.us.mdm.eset.com
+mdmcomm.jp.mdm.eset.com
+mdmcomm.ca.mdm.eset.com
+mdmcomm.de.mdm.eset.com
+mdm.eset.com
+
+# Azure CDN endpoints
+epx-k8s-prod-eu-a.westeurope.cloudapp.azure.com
+epx-k8s-prod-de-a.germanywestcentral.cloudapp.azure.com
+epx-k8s-prod-jp-a.japaneast.cloudapp.azure.com
+epx-k8s-prod-us-a.westus.cloudapp.azure.com
+epx-k8s-prod-ca-a.canadacentral.cloudapp.azure.com
+
+# XDR Services
+eu01.server.xdr.eset.systems
+de01.server.xdr.eset.systems
+jp01.server.xdr.eset.systems
+us01.server.xdr.eset.systems
+ca01.server.xdr.eset.systems

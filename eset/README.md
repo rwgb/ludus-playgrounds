@@ -6,9 +6,14 @@ A complete cyber security lab environment built on [Ludus](https://ludus.cloud) 
 
 This project deploys a fully functional corporate network simulation with:
 - **ESET Protect On-Prem** server for centralized endpoint management
-- **Active Directory** domain (corp.local) with domain controller
-- **Windows Server 2022** infrastructure with ESET templates
+- **Active Directory** domain (eset.local) with 3 domain controllers
+- **ESET Bridge** and **Rogue Detection Sensor** installed on SRV02
+- **Windows Server 2022** infrastructure (1 primary DC, 2 alternate DCs)
+- **Windows 11 Enterprise** workstation
 - **Ubuntu 24.04 LTS** ESET management server
+- **ESET Secure Authentication** and **ESET Endpoint Encryption** installers on primary DC
+- **Java (OpenJDK)** installed on primary DC
+- **Chocolatey** package manager on all Windows systems
 - Automated provisioning and configuration via Ansible
 
 ## Network Topology
@@ -16,12 +21,11 @@ This project deploys a fully functional corporate network simulation with:
 ```
 VLAN 10 (10.2.0.0/16)
 ├── Router: 10.2.10.254 (Debian 11)
-├── DC01: 10.2.10.15 (Windows Server 2022 - Domain Controller)
 ├── eset-server: 10.2.10.10 (Ubuntu 24.04 - ESET Protect Server)
-├── SRV01: 10.2.10.21 (Windows Server 2022 - Domain Member)
-├── SRV02: 10.2.10.22 (Windows Server 2022 - Domain Member)
-├── SRV03: 10.2.10.23 (Windows Server 2022 - Domain Member)
-└── SRV04: 10.2.10.24 (Windows Server 2022 - Domain Member)
+├── SRV01: 10.2.10.21 (Windows Server 2022 - Primary DC - eset.local)
+├── SRV02: 10.2.10.22 (Windows Server 2022 - Alternate DC - eset.local)
+├── SRV03: 10.2.10.23 (Windows Server 2022 - Alternate DC - eset.local)
+└── WIN11: 10.2.10.30 (Windows 11 - Workstation)
 ```
 
 ## Features
@@ -34,10 +38,26 @@ VLAN 10 (10.2.0.0/16)
 - Automated installation via custom Ansible role
 
 ### Active Directory Domain
-- Domain: corp.local
-- Organizational Units: Workstations, Servers
-- Domain Admin and standard user accounts
-- DNS and DHCP services
+- Domain: eset.local
+- Primary Domain Controller: SRV01 (10.2.10.21)
+  - Java (OpenJDK) installed
+  - ESET Secure Authentication installer (C:\ESET_Installers\esa_nt32nt64_enu.exe)
+  - ESET Endpoint Encryption installer (C:\ESET_Installers\eees_nt32.msi)
+  - Chocolatey package manager
+  - Domain user: **localuser** (Password: password)
+    - Member of Domain Admins
+    - Member of Schema Admins
+- Alternate Domain Controller: SRV02 (10.2.10.22)
+  - ESET Bridge installed (esetbridge_nt64.msi)
+  - Rogue Detection Sensor installed (rdsensor_x64.msi)
+  - WinPcap installed (required for RD Sensor)
+  - Chocolatey package manager
+- Alternate Domain Controller: SRV03 (10.2.10.23)
+  - ESET Inspector installer (C:\ESET_Installers\ei_server_nt64.msi)
+  - Chocolatey package manager
+- 1 Windows 11 Enterprise workstation (WIN11)
+  - Chocolatey package manager
+- All systems have security restrictions disabled for testing
 
 ### Security Configuration
 - Software installation restrictions **disabled** on all Windows servers
@@ -362,9 +382,13 @@ This range supports various security testing scenarios:
 - Configure ESET policies and exclusions
 
 ### Active Directory Testing
-- Test Group Policy deployment
+- Test multi-DC replication and failover
 - Practice domain enumeration techniques
 - Test lateral movement scenarios
+- Practice Kerberos authentication
+- Test Group Policy deployment across DCs
+- Deploy ESET Secure Authentication for MFA testing
+- Deploy ESET Endpoint Encryption for disk encryption testing
 
 ### Network Security
 - Capture network traffic between VMs
@@ -375,6 +399,140 @@ This range supports various security testing scenarios:
 - Test application installation methods
 - Practice Group Policy software deployment
 - Deploy custom scripts and tools
+
+## Testing Mode (Firewall Control)
+
+Ludus provides a testing mode that blocks all outbound internet traffic from your range. This is useful for:
+- **Malware analysis**: Prevent malware from communicating with C2 servers
+- **Controlled testing**: Ensure tools only communicate with known services
+- **Compliance**: Meet security testing requirements for isolated environments
+
+### Using Testing Mode
+
+#### Enable Testing Mode
+
+Block all outbound traffic:
+```bash
+make testing-start
+```
+
+This blocks all internet access from the range. VMs can still communicate with each other internally.
+
+#### Allow ESET Services
+
+To enable ESET cloud connectivity (updates, telemetry, LiveGrid):
+```bash
+make testing-allow-eset
+```
+
+This allowlists:
+- **300+ ESET domains** - Update servers, LiveGrid, PROTECT, antispam, etc.
+- **200+ IP addresses** - ESET infrastructure endpoints
+- Source: [ESET KB332](https://support.eset.com/en/kb332)
+
+Files used:
+- [eset-allowlist-domains.txt](eset-allowlist-domains.txt) - All required ESET domains
+- [eset-allowlist-ips.txt](eset-allowlist-ips.txt) - All required ESET IPs
+
+#### Check Testing Mode Status
+
+```bash
+make testing-status
+```
+
+Shows:
+- Whether testing mode is enabled
+- Currently allowed domains
+- Currently allowed IP addresses
+
+#### Add Custom Domains or IPs
+
+Allow a specific domain:
+```bash
+make testing-allow-domain
+# Enter domain when prompted, e.g., example.com
+```
+
+Allow a specific IP:
+```bash
+make testing-allow-ip
+# Enter IP when prompted, e.g., 1.2.3.4
+```
+
+Or use Ludus directly:
+```bash
+# Single domain
+ludus testing allow -d example.com
+
+# Multiple domains
+ludus testing allow -d example.com,test.com
+
+# Single IP
+ludus testing allow -i 1.2.3.4
+
+# From file (one entry per line)
+ludus testing allow -f custom-allowlist.txt
+```
+
+#### Disable Testing Mode
+
+Restore full internet access:
+```bash
+make testing-stop
+```
+
+### Testing Mode Examples
+
+**Scenario 1: Malware Analysis**
+```bash
+# 1. Enable testing mode (block all traffic)
+make testing-start
+
+# 2. Allow only ESET services
+make testing-allow-eset
+
+# 3. Run malware sample - cannot reach C2 servers
+# 4. Analyze ESET detection behavior safely
+
+# 5. Restore internet when done
+make testing-stop
+```
+
+**Scenario 2: Controlled Updates**
+```bash
+# 1. Block all traffic
+make testing-start
+
+# 2. Allow only specific update servers
+ludus testing allow -d windowsupdate.microsoft.com,download.microsoft.com
+
+# 3. Allow ESET updates
+make testing-allow-eset
+
+# 4. Perform controlled updates only from allowed sources
+```
+
+**Scenario 3: Custom Tool Testing**
+```bash
+# 1. Enable testing mode
+make testing-start
+
+# 2. Allow only your own infrastructure
+ludus testing allow -d mycompany.com -i 203.0.113.10
+
+# 3. Test custom tools with restricted internet
+```
+
+### Testing Mode Notes
+
+- ⚠️ Testing mode is **optional** - ESET works fine without it
+- ✅ Use it when you need **strict traffic control**
+- 🔒 Internal VM-to-VM traffic is **always allowed**
+- 🌐 Allowlisted domains are resolved on the **Ludus server** (not in VMs)
+- 📝 Allowlists persist until testing mode is stopped
+- 🚫 Blocking traffic does **not** affect VPN access to VMs
+
+
 
 ## Maintenance
 
@@ -406,10 +564,10 @@ ludus user wireguard > ludus-range-backup.conf
 
 ## Performance Notes
 
-- **Deployment time**: 30-60 minutes (depending on sysprep and domain operations)
+- **Deployment time**: 20-40 minutes (depending on sysprep)
 - **ESET installation**: 10-15 minutes
-- **Total range size**: ~7 VMs (6 Windows + 1 Ubuntu)
-- **Minimum RAM**: 28 GB (4 GB per VM)
+- **Total range size**: 5 VMs (4 Windows + 1 Ubuntu)
+- **Minimum RAM**: 20 GB (4 GB per VM)
 
 ## Security Considerations
 

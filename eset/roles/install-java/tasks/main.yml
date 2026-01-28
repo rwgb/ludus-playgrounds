@@ -1,0 +1,20 @@
+---
+- name: Install Java JDK via Chocolatey
+  ansible.windows.win_chocolatey:
+    name: openjdk
+    state: present
+  register: java_install
+  retries: 3
+  delay: 10
+  until: java_install is succeeded
+
+- name: Verify Java installation
+  ansible.windows.win_command: java -version
+  register: java_version
+  changed_when: false
+  failed_when: false
+
+- name: Display Java installation status
+  ansible.builtin.debug:
+    msg: "Java installed successfully"
+  when: java_version.rc == 0

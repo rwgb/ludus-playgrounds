@@ -1,0 +1,52 @@
+---
+- name: Wait for Active Directory Web Services
+  ansible.windows.win_service:
+    name: ADWS
+    state: started
+  register: adws_service
+  retries: 10
+  delay: 30
+  until: adws_service is succeeded
+
+- name: Create domain user localuser
+  ansible.windows.win_domain_user:
+    name: "{{ domain_username }}"
+    password: "{{ domain_password }}"
+    state: present
+    enabled: true
+    password_never_expires: true
+    user_cannot_change_password: false
+    description: "Local domain user with admin privileges"
+  register: user_creation
+  retries: 5
+  delay: 10
+  until: user_creation is succeeded
+
+- name: Add localuser to Domain Admins group
+  ansible.windows.win_domain_group_membership:
+    name: "Domain Admins"
+    members:
+      - "{{ domain_username }}"
+    state: present
+  register: domain_admin_add
+  retries: 3
+  delay: 10
+  until: domain_admin_add is succeeded
+
+- name: Add localuser to Schema Admins group
+  ansible.windows.win_domain_group_membership:
+    name: "Schema Admins"
+    members:
+      - "{{ domain_username }}"
+    state: present
+  register: schema_admin_add
+  retries: 3
+  delay: 10
+  until: schema_admin_add is succeeded
+
+- name: Display user configuration status
+  ansible.builtin.debug:
+    msg:
+      - "Domain user {{ domain_username }} configured successfully"
+      - "Member of: Domain Admins, Schema Admins"
+      - "Password: {{ domain_password }}"

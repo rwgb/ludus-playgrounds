@@ -1,0 +1,11 @@
+---
+# Download directory for ESET installers
+eset_download_dir: "C:\\ESET_Installers"
+
+# ESET Secure Authentication download URL and filename
+eset_esa_url: "https://download.eset.com/com/eset/apps/business/esa/windows/latest/esa_nt32nt64_enu.exe"
+eset_esa_filename: "esa_nt32nt64_enu.exe"
+
+# ESET Endpoint Encryption download URL and filename
+eset_eee_url: "https://download.eset.com/com/eset/apps/business/deslock/server/latest/eees_nt32.msi"
+eset_eee_filename: "eees_nt32.msi"

@@ -1,0 +1,8 @@
+---
+# ESET Agent registry configuration
+eset_registry_path: "HKLM:\\SOFTWARE\\ESET\\RemoteAdministrator\\Agent\\CurrentVersion\\Info"
+eset_uuid_value_name: "ProductInstanceID"
+
+# Generate a new UUID for each host (set to empty to auto-generate)
+# Format: 8ff9066-bc32-49ef-80ec-1bb23e8f1600
+eset_new_uuid: ""

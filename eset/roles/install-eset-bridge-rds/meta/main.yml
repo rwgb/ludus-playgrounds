@@ -1,0 +1,10 @@
+galaxy_info:
+  author: Ralph Brynard
+  description: Installs ESET Bridge and Rogue Detection Sensor with WinPcap
+  license: MIT
+  min_ansible_version: 2.9
+  platforms:
+    - name: Windows
+      versions:
+        - 2022
+dependencies: []

@@ -1,0 +1,60 @@
+---
+- name: Create ESET installers directory
+  ansible.windows.win_file:
+    path: "{{ eset_download_dir }}"
+    state: directory
+
+- name: Install WinPcap (required for Rogue Detection Sensor)
+  ansible.windows.win_chocolatey:
+    name: winpcap
+    state: present
+  register: winpcap_install
+  retries: 3
+  delay: 10
+  until: winpcap_install is succeeded
+
+- name: Download ESET Bridge installer
+  ansible.windows.win_get_url:
+    url: "{{ eset_bridge_url }}"
+    dest: "{{ eset_download_dir }}\\{{ eset_bridge_filename }}"
+    force: false
+  register: bridge_download
+  retries: 3
+  delay: 10
+  until: bridge_download is succeeded
+
+- name: Download Rogue Detection Sensor installer
+  ansible.windows.win_get_url:
+    url: "{{ rdsensor_url }}"
+    dest: "{{ eset_download_dir }}\\{{ rdsensor_filename }}"
+    force: false
+  register: rdsensor_download
+  retries: 3
+  delay: 10
+  until: rdsensor_download is succeeded
+
+- name: Install ESET Bridge
+  ansible.windows.win_package:
+    path: "{{ eset_download_dir }}\\{{ eset_bridge_filename }}"
+    state: present
+    arguments: /quiet /norestart
+  register: bridge_install
+  async: 1800
+  poll: 30
+
+- name: Install Rogue Detection Sensor
+  ansible.windows.win_package:
+    path: "{{ eset_download_dir }}\\{{ rdsensor_filename }}"
+    state: present
+    arguments: /quiet /norestart
+  register: rdsensor_install
+  async: 1800
+  poll: 30
+
+- name: Display installation status
+  ansible.builtin.debug:
+    msg:
+      - "ESET Bridge and Rogue Detection Sensor installation complete"
+      - "WinPcap installed: {{ winpcap_install.changed }}"
+      - "ESET Bridge: {{ eset_download_dir }}\\{{ eset_bridge_filename }}"
+      - "Rogue Detection Sensor: {{ eset_download_dir }}\\{{ rdsensor_filename }}"

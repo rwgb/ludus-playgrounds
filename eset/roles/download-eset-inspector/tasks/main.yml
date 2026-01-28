@@ -1,0 +1,19 @@
+---
+- name: Create ESET installers directory
+  ansible.windows.win_file:
+    path: "{{ eset_download_dir }}"
+    state: directory
+
+- name: Download ESET Inspector server installer
+  ansible.windows.win_get_url:
+    url: "{{ eset_inspector_url }}"
+    dest: "{{ eset_download_dir }}\\{{ eset_inspector_filename }}"
+    force: false
+  register: inspector_download
+  retries: 3
+  delay: 10
+  until: inspector_download is succeeded
+
+- name: Display download location
+  ansible.builtin.debug:
+    msg: "ESET Inspector downloaded to {{ eset_download_dir }}\\{{ eset_inspector_filename }}"

@@ -1,0 +1,32 @@
+---
+- name: Create ESET installers directory
+  ansible.windows.win_file:
+    path: "{{ eset_download_dir }}"
+    state: directory
+
+- name: Download ESET Secure Authentication installer
+  ansible.windows.win_get_url:
+    url: "{{ eset_esa_url }}"
+    dest: "{{ eset_download_dir }}\\{{ eset_esa_filename }}"
+    force: false
+  register: esa_download
+  retries: 3
+  delay: 10
+  until: esa_download is succeeded
+
+- name: Download ESET Endpoint Encryption installer
+  ansible.windows.win_get_url:
+    url: "{{ eset_eee_url }}"
+    dest: "{{ eset_download_dir }}\\{{ eset_eee_filename }}"
+    force: false
+  register: eee_download
+  retries: 3
+  delay: 10
+  until: eee_download is succeeded
+
+- name: Display download locations
+  ansible.builtin.debug:
+    msg:
+      - "ESET installers downloaded successfully:"
+      - "ESET Secure Authentication: {{ eset_download_dir }}\\{{ eset_esa_filename }}"
+      - "ESET Endpoint Encryption: {{ eset_download_dir }}\\{{ eset_eee_filename }}"

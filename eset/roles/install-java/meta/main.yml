@@ -1,0 +1,10 @@
+galaxy_info:
+  author: Ralph Brynard
+  description: Installs Java JDK via Chocolatey
+  license: MIT
+  min_ansible_version: 2.9
+  platforms:
+    - name: Windows
+      versions:
+        - 2022
+dependencies: []

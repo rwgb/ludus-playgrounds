@@ -1,0 +1,5 @@
+---
+# Domain user configuration
+domain_username: "localuser"
+domain_password: "password"
+domain_name: "eset.local"

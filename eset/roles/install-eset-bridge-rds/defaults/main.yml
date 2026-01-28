@@ -1,0 +1,11 @@
+---
+# Download directory for ESET installers
+eset_download_dir: "C:\\ESET_Installers"
+
+# ESET Bridge download URL and filename
+eset_bridge_url: "https://download.eset.com/com/eset/apps/business/ech/latest/esetbridge_nt64.msi"
+eset_bridge_filename: "esetbridge_nt64.msi"
+
+# Rogue Detection Sensor download URL and filename
+rdsensor_url: "https://download.eset.com/com/eset/apps/business/era/rdsensor/latest/rdsensor_x64.msi"
+rdsensor_filename: "rdsensor_x64.msi"
