@@ -1,12 +1,19 @@
 ---
+- name: Check if Java is already installed
+  ansible.windows.win_command: java -version
+  register: java_check
+  changed_when: false
+  failed_when: false
+
+- name: Display Java already installed message
+  ansible.builtin.debug:
+    msg: "Java is already installed. Skipping installation."
+  when: java_check.rc == 0
+
 - name: Install Java JDK via Chocolatey
-  ansible.windows.win_chocolatey:
-    name: openjdk
-    state: present
+  ansible.windows.win_shell: choco install openjdk -y
   register: java_install
-  retries: 3
-  delay: 10
-  until: java_install is succeeded
+  when: java_check.rc != 0
 
 - name: Verify Java installation
   ansible.windows.win_command: java -version

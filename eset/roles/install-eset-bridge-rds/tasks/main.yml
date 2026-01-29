@@ -27,13 +27,8 @@
   when: rdsensor_check.exists is defined and rdsensor_check.exists
 
 - name: Install WinPcap (required for Rogue Detection Sensor)
-  ansible.windows.win_chocolatey:
-    name: winpcap
-    state: present
+  ansible.windows.win_shell: choco install winpcap -y
   register: winpcap_install
-  retries: 3
-  delay: 10
-  until: winpcap_install is succeeded
   when: rdsensor_check.exists is not defined or not rdsensor_check.exists
 
 - name: Download ESET Bridge installer
