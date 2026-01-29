@@ -11,9 +11,59 @@
   when: java_check.rc == 0
 
 - name: Install Java JDK via Chocolatey
-  ansible.windows.win_shell: choco install openjdk -y
+  ansible.windows.win_shell: choco install openjdk11 -y
   register: java_install
   when: java_check.rc != 0
+
+- name: Get Java installation path
+  ansible.windows.win_shell: |
+    $javaPath = (Get-Command java -ErrorAction SilentlyContinue).Path
+    if ($javaPath) {
+      $javaHome = Split-Path (Split-Path $javaPath -Parent) -Parent
+      Write-Output $javaHome
+    } else {
+      # Search common installation paths
+      $possiblePaths = @(
+        "C:\Program Files\OpenJDK\*",
+        "C:\Program Files\Java\*",
+        "C:\Program Files (x86)\OpenJDK\*",
+        "C:\Program Files (x86)\Java\*"
+      )
+      foreach ($path in $possiblePaths) {
+        $dirs = Get-Item $path -ErrorAction SilentlyContinue | Sort-Object Name -Descending
+        if ($dirs) {
+          Write-Output $dirs[0].FullName
+          break
+        }
+      }
+    }
+  register: java_home_path
+  changed_when: false
+
+- name: Set JAVA_HOME system environment variable
+  ansible.windows.win_shell: |
+    $javaHome = "{{ java_home_path.stdout | trim }}"
+    [System.Environment]::SetEnvironmentVariable('JAVA_HOME', $javaHome, [System.EnvironmentVariableTarget]::Machine)
+    Write-Output "JAVA_HOME set to: $javaHome"
+  when: java_home_path.stdout | trim | length > 0
+  register: java_home_set
+
+- name: Add Java to system PATH
+  ansible.windows.win_shell: |
+    $javaHome = "{{ java_home_path.stdout | trim }}"
+    $javaBin = "$javaHome\bin"
+    $currentPath = [System.Environment]::GetEnvironmentVariable('Path', [System.EnvironmentVariableTarget]::Machine)
+    
+    if ($currentPath -notlike "*$javaBin*") {
+      $newPath = "$currentPath;$javaBin"
+      [System.Environment]::SetEnvironmentVariable('Path', $newPath, [System.EnvironmentVariableTarget]::Machine)
+      Write-Output "Added $javaBin to PATH"
+    } else {
+      Write-Output "Java bin directory already in PATH"
+    }
+  when: java_home_path.stdout | trim | length > 0
+  register: java_path_set
+  changed_when: "'Added' in java_path_set.stdout"
 
 - name: Verify Java installation
   ansible.windows.win_command: java -version
@@ -21,7 +71,10 @@
   changed_when: false
   failed_when: false
 
-- name: Display Java installation status
+- name: Display Java configuration
   ansible.builtin.debug:
-    msg: "Java installed successfully"
+    msg:
+      - "Java installed successfully"
+      - "JAVA_HOME: {{ java_home_path.stdout | trim }}"
+      - "Java version: {{ java_version.stderr_lines[0] if java_version.stderr_lines else 'Unknown' }}"
   when: java_version.rc == 0

@@ -1,48 +1,101 @@
 ---
-- name: Wait for Active Directory Web Services
-  ansible.windows.win_service:
-    name: ADWS
-    state: started
-  register: adws_service
-  retries: 10
-  delay: 30
-  until: adws_service is succeeded
+- name: Wait for Active Directory Web Services to start
+  ansible.windows.win_shell: |
+    $maxRetries = 10
+    $retryCount = 0
+    $serviceRunning = $false
+    
+    while ($retryCount -lt $maxRetries -and -not $serviceRunning) {
+      $service = Get-Service -Name ADWS -ErrorAction SilentlyContinue
+      if ($service.Status -eq 'Running') {
+        $serviceRunning = $true
+        Write-Output "ADWS service is running"
+      } else {
+        Write-Output "Waiting for ADWS service... (Attempt $($retryCount + 1)/$maxRetries)"
+        Start-Sleep -Seconds 30
+        $retryCount++
+      }
+    }
+    
+    if (-not $serviceRunning) {
+      throw "ADWS service did not start after $maxRetries attempts"
+    }
+  register: adws_wait
+  changed_when: false
 
-- name: Create domain user localuser
-  ansible.windows.win_domain_user:
-    name: "{{ domain_username }}"
-    password: "{{ domain_password }}"
-    state: present
-    enabled: true
-    password_never_expires: true
-    user_cannot_change_password: false
-    description: "Local domain user with admin privileges"
+- name: Check if domain user exists
+  ansible.windows.win_shell: |
+    try {
+      Import-Module ActiveDirectory -ErrorAction Stop
+      $user = Get-ADUser -Identity "{{ domain_username }}" -ErrorAction SilentlyContinue
+      if ($user) {
+        Write-Output "EXISTS"
+      } else {
+        Write-Output "NOT_FOUND"
+      }
+    } catch {
+      Write-Output "NOT_FOUND"
+    }
+  register: user_check
+  changed_when: false
+  failed_when: false
+
+- name: Create domain user if not exists
+  ansible.windows.win_shell: |
+    Import-Module ActiveDirectory
+    $securePassword = ConvertTo-SecureString "{{ domain_password }}" -AsPlainText -Force
+    New-ADUser -Name "{{ domain_username }}" `
+               -SamAccountName "{{ domain_username }}" `
+               -UserPrincipalName "{{ domain_username }}@{{ domain_name }}" `
+               -AccountPassword $securePassword `
+               -Enabled $true `
+               -PasswordNeverExpires $true `
+               -CannotChangePassword $false `
+               -Description "Local domain user with admin privileges"
+    Write-Output "User {{ domain_username }} created successfully"
   register: user_creation
+  when: user_check.stdout | trim == "NOT_FOUND"
   retries: 5
   delay: 10
   until: user_creation is succeeded
 
-- name: Add localuser to Domain Admins group
-  ansible.windows.win_domain_group_membership:
-    name: "Domain Admins"
-    members:
-      - "{{ domain_username }}"
-    state: present
+- name: Add user to Domain Admins group
+  ansible.windows.win_shell: |
+    Import-Module ActiveDirectory
+    $user = Get-ADUser -Identity "{{ domain_username }}"
+    $group = Get-ADGroup -Identity "Domain Admins"
+    $isMember = Get-ADGroupMember -Identity $group | Where-Object { $_.SamAccountName -eq "{{ domain_username }}" }
+    
+    if (-not $isMember) {
+      Add-ADGroupMember -Identity "Domain Admins" -Members $user
+      Write-Output "Added {{ domain_username }} to Domain Admins"
+    } else {
+      Write-Output "{{ domain_username }} is already a member of Domain Admins"
+    }
   register: domain_admin_add
   retries: 3
   delay: 10
   until: domain_admin_add is succeeded
+  changed_when: "'Added' in domain_admin_add.stdout"
 
-- name: Add localuser to Schema Admins group
-  ansible.windows.win_domain_group_membership:
-    name: "Schema Admins"
-    members:
-      - "{{ domain_username }}"
-    state: present
+- name: Add user to Schema Admins group
+  ansible.windows.win_shell: |
+    Import-Module ActiveDirectory
+    $user = Get-ADUser -Identity "{{ domain_username }}"
+    $group = Get-ADGroup -Identity "Schema Admins"
+    $isMember = Get-ADGroupMember -Identity $group | Where-Object { $_.SamAccountName -eq "{{ domain_username }}" }
+    
+    if (-not $isMember) {
+      Add-ADGroupMember -Identity "Schema Admins" -Members $user
+      Write-Output "Added {{ domain_username }} to Schema Admins"
+    } else {
+      Write-Output "{{ domain_username }} is already a member of Schema Admins"
+    }
   register: schema_admin_add
   retries: 3
   delay: 10
   until: schema_admin_add is succeeded
+  changed_when: "'Added' in schema_admin_add.stdout"
 
 - name: Display user configuration status
   ansible.builtin.debug:

@@ -17,13 +17,22 @@
     msg: "ESET Protect is already installed. Skipping installation."
   when: eset_server_check.stat.exists or (eset_service_check.status is defined and eset_service_check.status.ActiveState is defined)
 
+- name: Check if install script already exists
+  ansible.builtin.stat:
+    path: /tmp/install-eset.sh
+  register: install_script_check
+  become: yes
+
 - name: Download ESET installation script
   ansible.builtin.get_url:
     url: https://raw.githubusercontent.com/rwgb/eset.epop.tools/dev/scripts/linux/install-eset.sh
     dest: /tmp/install-eset.sh
     mode: '0755'
   become: yes
-  when: not eset_server_check.stat.exists and (eset_service_check.status is not defined or eset_service_check.status.ActiveState is not defined)
+  when: 
+    - not eset_server_check.stat.exists 
+    - (eset_service_check.status is not defined or eset_service_check.status.ActiveState is not defined)
+    - not install_script_check.stat.exists
 
 - name: Execute ESET installation script
   ansible.builtin.shell: /tmp/install-eset.sh
