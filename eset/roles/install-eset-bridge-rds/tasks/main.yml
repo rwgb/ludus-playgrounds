@@ -4,6 +4,28 @@
     path: "{{ eset_download_dir }}"
     state: directory
 
+- name: Check if ESET Bridge is already installed
+  ansible.windows.win_service:
+    name: "ESET Management Connector"
+  register: eset_bridge_check
+  ignore_errors: yes
+
+- name: Check if Rogue Detection Sensor is already installed
+  ansible.windows.win_service:
+    name: "ESET Rogue Detection Sensor"
+  register: rdsensor_check
+  ignore_errors: yes
+
+- name: Display ESET Bridge installation status
+  ansible.builtin.debug:
+    msg: "ESET Bridge is already installed. Skipping installation."
+  when: eset_bridge_check.exists is defined and eset_bridge_check.exists
+
+- name: Display Rogue Detection Sensor installation status
+  ansible.builtin.debug:
+    msg: "Rogue Detection Sensor is already installed. Skipping installation."
+  when: rdsensor_check.exists is defined and rdsensor_check.exists
+
 - name: Install WinPcap (required for Rogue Detection Sensor)
   ansible.windows.win_chocolatey:
     name: winpcap
@@ -12,6 +34,7 @@
   retries: 3
   delay: 10
   until: winpcap_install is succeeded
+  when: rdsensor_check.exists is not defined or not rdsensor_check.exists
 
 - name: Download ESET Bridge installer
   ansible.windows.win_get_url:
@@ -22,6 +45,7 @@
   retries: 3
   delay: 10
   until: bridge_download is succeeded
+  when: eset_bridge_check.exists is not defined or not eset_bridge_check.exists
 
 - name: Download Rogue Detection Sensor installer
   ansible.windows.win_get_url:
@@ -32,6 +56,7 @@
   retries: 3
   delay: 10
   until: rdsensor_download is succeeded
+  when: rdsensor_check.exists is not defined or not rdsensor_check.exists
 
 - name: Install ESET Bridge
   ansible.windows.win_package:
@@ -41,6 +66,7 @@
   register: bridge_install
   async: 1800
   poll: 30
+  when: eset_bridge_check.exists is not defined or not eset_bridge_check.exists
 
 - name: Install Rogue Detection Sensor
   ansible.windows.win_package:
@@ -50,11 +76,14 @@
   register: rdsensor_install
   async: 1800
   poll: 30
+  when: rdsensor_check.exists is not defined or not rdsensor_check.exists
 
 - name: Display installation status
   ansible.builtin.debug:
     msg:
       - "ESET Bridge and Rogue Detection Sensor installation complete"
-      - "WinPcap installed: {{ winpcap_install.changed }}"
-      - "ESET Bridge: {{ eset_download_dir }}\\{{ eset_bridge_filename }}"
-      - "Rogue Detection Sensor: {{ eset_download_dir }}\\{{ rdsensor_filename }}"
+      - "ESET Bridge already installed: {{ eset_bridge_check.exists | default(false) }}"
+      - "Rogue Detection Sensor already installed: {{ rdsensor_check.exists | default(false) }}"
+      - "WinPcap installed: {{ winpcap_install.changed | default(false) }}"
+      - "ESET Bridge installer: {{ eset_download_dir }}\\{{ eset_bridge_filename }}"
+      - "Rogue Detection Sensor installer: {{ eset_download_dir }}\\{{ rdsensor_filename }}"

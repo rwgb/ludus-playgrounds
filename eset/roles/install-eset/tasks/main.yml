@@ -1,10 +1,29 @@
 ---
+- name: Check if ESET Protect is already installed
+  ansible.builtin.stat:
+    path: /opt/eset/RemoteAdministrator/Server/ERAServer
+  register: eset_server_check
+  become: yes
+
+- name: Check if ESET Server service exists
+  ansible.builtin.systemd:
+    name: eraserver
+  register: eset_service_check
+  become: yes
+  ignore_errors: yes
+
+- name: Display ESET installation status
+  ansible.builtin.debug:
+    msg: "ESET Protect is already installed. Skipping installation."
+  when: eset_server_check.stat.exists or (eset_service_check.status is defined and eset_service_check.status.ActiveState is defined)
+
 - name: Download ESET installation script
   ansible.builtin.get_url:
     url: https://raw.githubusercontent.com/rwgb/eset.epop.tools/dev/scripts/linux/install-eset.sh
     dest: /tmp/install-eset.sh
     mode: '0755'
   become: yes
+  when: not eset_server_check.stat.exists and (eset_service_check.status is not defined or eset_service_check.status.ActiveState is not defined)
 
 - name: Execute ESET installation script
   ansible.builtin.shell: /tmp/install-eset.sh
@@ -19,13 +38,18 @@
   register: eset_install_result
   async: 3600
   poll: 30
+  when: not eset_server_check.stat.exists and (eset_service_check.status is not defined or eset_service_check.status.ActiveState is not defined)
 
 - name: Display ESET installation output
   ansible.builtin.debug:
     var: eset_install_result.stdout_lines
-  when: eset_install_result.stdout_lines is defined
+  when: 
+    - eset_install_result is defined
+    - eset_install_result.stdout_lines is defined
 
 - name: Display ESET installation errors
   ansible.builtin.debug:
     var: eset_install_result.stderr_lines
-  when: eset_install_result.stderr_lines is defined
+  when: 
+    - eset_install_result is defined
+    - eset_install_result.stderr_lines is defined
