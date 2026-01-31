@@ -30,3 +30,19 @@ ludus:
       - windows-setup
       - install-java
       - download-eset-esa-eee
+
+  - vm_name: "{{ range_id }}-member-server"
+    hostname: "SRV02"
+    template: win2022-server-x64-template
+    vlan: 10
+    ip_last_octet: 22
+    ram_gb: 4
+    cpus: 2
+    windows:
+      sysprep: true
+    domain:
+      fqdn: eset.local
+      role: member
+    roles:
+      - windows-setup
+      - install-eset-bridge-rds
