@@ -1,4 +1,5 @@
 ---
+# Disable security restrictions
 - name: Disable User Account Control (UAC)
   ansible.windows.win_regedit:
     path: HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System
@@ -55,6 +56,40 @@
     Set-ExecutionPolicy -ExecutionPolicy Unrestricted -Force -Scope LocalMachine
   ignore_errors: yes
 
-- name: Display completion message
+# Install Chocolatey
+- name: Check if Chocolatey is already installed
+  ansible.windows.win_command: choco --version
+  register: choco_check
+  changed_when: false
+  failed_when: false
+
+- name: Display Chocolatey already installed message
   ansible.builtin.debug:
-    msg: "Software installation restrictions have been disabled on {{ inventory_hostname }}"
+    msg: "Chocolatey is already installed. Skipping installation."
+  when: choco_check.rc == 0
+
+- name: Restart Windows to apply security changes (if Chocolatey not installed)
+  ansible.windows.win_reboot:
+    reboot_timeout: 600
+    post_reboot_delay: 60
+  when: choco_check.rc != 0
+
+- name: Install Chocolatey package manager
+  ansible.windows.win_shell: |
+    Set-ExecutionPolicy Bypass -Scope Process -Force
+    [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
+    iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
+  register: choco_install
+  when: choco_check.rc != 0
+
+- name: Verify Chocolatey installation
+  ansible.windows.win_command: choco --version
+  register: choco_version
+  changed_when: false
+
+- name: Display Windows setup completion
+  ansible.builtin.debug:
+    msg:
+      - "Windows setup complete on {{ inventory_hostname }}"
+      - "UAC, Defender, and Firewall disabled"
+      - "Chocolatey version {{ choco_version.stdout.strip() }} installed"

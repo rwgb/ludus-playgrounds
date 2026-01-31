@@ -1,7 +1,7 @@
 ---
 galaxy_info:
   author: Ralph Brynard
-  description: Download ESET Inspector server installer
+  description: Configure Active Directory users and group memberships
   company: Bad Sector Labs
   license: MIT
   min_ansible_version: 2.9
@@ -10,6 +10,7 @@ galaxy_info:
       versions:
         - 2022
   galaxy_tags:
-    - eset
-    - download
+    - windows
+    - active_directory
+    - domain
 dependencies: []

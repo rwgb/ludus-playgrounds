@@ -1,19 +1,17 @@
 ---
 galaxy_info:
-  role_name: disable-software-restrictions
-  author: Ludus User
-  description: Disable Windows software installation restrictions
-  company: ""
+  author: Ralph Brynard
+  description: Disable Windows security restrictions and install Chocolatey
+  company: Bad Sector Labs
   license: MIT
   min_ansible_version: 2.9
   platforms:
     - name: Windows
       versions:
         - 2022
-        - 2019
+        - 11
   galaxy_tags:
     - windows
     - security
-    - gpo
-
+    - chocolatey
 dependencies: []

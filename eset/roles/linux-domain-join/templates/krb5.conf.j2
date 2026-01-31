@@ -1,0 +1,19 @@
+[libdefaults]
+    default_realm = {{ ad_realm }}
+    dns_lookup_realm = false
+    dns_lookup_kdc = false
+    rdns = false
+    ticket_lifetime = 24h
+    forwardable = true
+    udp_preference_limit = 0
+
+[realms]
+    {{ ad_realm }} = {
+        kdc = {{ ad_dc_hostname }}
+        admin_server = {{ ad_dc_hostname }}
+        default_domain = {{ ad_domain }}
+    }
+
+[domain_realm]
+    .{{ ad_domain }} = {{ ad_realm }}
+    {{ ad_domain }} = {{ ad_realm }}

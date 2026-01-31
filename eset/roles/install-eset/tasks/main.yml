@@ -6,16 +6,20 @@
   become: yes
 
 - name: Check if ESET Server service exists
-  ansible.builtin.systemd:
-    name: eraserver
+  ansible.builtin.shell: systemctl list-units --type=service --all | grep -q eraserver && echo "EXISTS" || echo "NOT_FOUND"
   register: eset_service_check
   become: yes
-  ignore_errors: yes
+  changed_when: false
+  failed_when: false
+
+- name: Set ESET installation status
+  ansible.builtin.set_fact:
+    eset_is_installed: "{{ eset_server_check.stat.exists or (eset_service_check.stdout == 'EXISTS') }}"
 
 - name: Display ESET installation status
   ansible.builtin.debug:
     msg: "ESET Protect is already installed. Skipping installation."
-  when: eset_server_check.stat.exists or (eset_service_check.status is defined and eset_service_check.status.ActiveState is defined)
+  when: eset_is_installed
 
 - name: Check if install script already exists
   ansible.builtin.stat:
@@ -29,10 +33,7 @@
     dest: /tmp/install-eset.sh
     mode: '0755'
   become: yes
-  when: 
-    - not eset_server_check.stat.exists 
-    - (eset_service_check.status is not defined or eset_service_check.status.ActiveState is not defined)
-    - not install_script_check.stat.exists
+  when: not eset_is_installed and not install_script_check.stat.exists
 
 - name: Execute ESET installation script
   ansible.builtin.shell: /tmp/install-eset.sh
@@ -47,7 +48,7 @@
   register: eset_install_result
   async: 3600
   poll: 30
-  when: not eset_server_check.stat.exists and (eset_service_check.status is not defined or eset_service_check.status.ActiveState is not defined)
+  when: not eset_is_installed
 
 - name: Display ESET installation output
   ansible.builtin.debug:

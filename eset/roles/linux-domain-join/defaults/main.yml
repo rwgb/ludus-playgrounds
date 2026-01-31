@@ -1,0 +1,12 @@
+---
+# Active Directory domain to join
+ad_domain: "eset.local"
+ad_realm: "ESET.LOCAL"
+
+# Domain administrator credentials for joining
+ad_admin_user: "Administrator"
+ad_admin_password: "password"
+
+# Domain controller hostname/IP
+ad_dc_hostname: "SRV01.eset.local"
+ad_dc_ip: "10.2.10.21"

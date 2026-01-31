@@ -1,0 +1,18 @@
+---
+galaxy_info:
+  author: Ludus ESET Playground
+  description: Join Ubuntu Linux to Active Directory domain
+  company: 
+  license: MIT
+  min_ansible_version: 2.9
+  platforms:
+    - name: Ubuntu
+      versions:
+        - 24.04
+  galaxy_tags:
+    - active-directory
+    - domain-join
+    - realm
+    - sssd
+
+dependencies: []

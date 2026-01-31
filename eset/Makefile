@@ -87,19 +87,43 @@ destroy:
 # Upload the ansible role to Ludus server
 upload-role:
 	@echo "Uploading install-eset role to Ludus server..."
-	ludus ansible role add -d roles/install-eset
+	ludus ansible role add -d roles/install-eset --force
 
 # Upload all roles
 upload-roles:
 	@echo "Uploading all custom roles to Ludus server..."
-	ludus ansible role add -d roles/install-eset
-	ludus ansible role add -d roles/disable-software-restrictions
-	ludus ansible role add -d roles/download-eset-tools
-	ludus ansible role add -d roles/install-chocolatey
-	ludus ansible role add -d roles/install-java
-	ludus ansible role add -d roles/install-eset-bridge-rds
-	ludus ansible role add -d roles/download-eset-inspector
-	ludus ansible role add -d roles/configure-domain-user
+	ludus ansible role add -d roles/install-eset --force
+	ludus ansible role add -d roles/windows-setup --force
+	ludus ansible role add -d roles/install-java --force
+	ludus ansible role add -d roles/install-eset-bridge-rds --force
+	ludus ansible role add -d roles/download-eset-esa-eee --force
+	ludus ansible role add -d roles/download-eset-inspector --force
+	ludus ansible role add -d roles/configure-ad-users --force
+
+# Delete and re-upload all roles (fresh upload)
+refresh-roles: clean-old-roles
+	@echo "Deleting all current roles from server..."
+	-ludus ansible role rm install-eset
+	-ludus ansible role rm windows-setup
+	-ludus ansible role rm install-java
+	-ludus ansible role rm install-eset-bridge-rds
+	-ludus ansible role rm download-eset-esa-eee
+	-ludus ansible role rm download-eset-inspector
+	-ludus ansible role rm configure-ad-users
+	@echo "Re-uploading fresh roles..."
+	$(MAKE) upload-roles
+
+# Delete old consolidated roles from server
+clean-old-roles:
+	@echo "Removing old consolidated roles from Ludus server..."
+	-ludus ansible role rm disable-software-restrictions
+	-ludus ansible role rm install-chocolatey
+	-ludus ansible role rm download-eset-tools
+	-ludus ansible role rm configure-domain-user
+	-ludus ansible role rm create-domain-users
+	-ludus ansible role rm download-eset-installers
+	-ludus ansible role rm download-eset-components
+	@echo "Old roles cleaned up"
 
 # List installed ansible roles
 list-roles:

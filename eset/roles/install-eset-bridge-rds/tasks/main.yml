@@ -26,11 +26,6 @@
     msg: "Rogue Detection Sensor is already installed. Skipping installation."
   when: rdsensor_check.exists is defined and rdsensor_check.exists
 
-- name: Install WinPcap (required for Rogue Detection Sensor)
-  ansible.windows.win_shell: choco install winpcap -y
-  register: winpcap_install
-  when: rdsensor_check.exists is not defined or not rdsensor_check.exists
-
 - name: Download ESET Bridge installer
   ansible.windows.win_get_url:
     url: "{{ eset_bridge_url }}"
@@ -63,22 +58,12 @@
   poll: 30
   when: eset_bridge_check.exists is not defined or not eset_bridge_check.exists
 
-- name: Install Rogue Detection Sensor
-  ansible.windows.win_package:
-    path: "{{ eset_download_dir }}\\{{ rdsensor_filename }}"
-    state: present
-    arguments: /quiet /norestart
-  register: rdsensor_install
-  async: 1800
-  poll: 30
-  when: rdsensor_check.exists is not defined or not rdsensor_check.exists
-
 - name: Display installation status
   ansible.builtin.debug:
     msg:
-      - "ESET Bridge and Rogue Detection Sensor installation complete"
+      - "ESET Bridge installation complete (Rogue Detection Sensor requires manual installation)"
       - "ESET Bridge already installed: {{ eset_bridge_check.exists | default(false) }}"
-      - "Rogue Detection Sensor already installed: {{ rdsensor_check.exists | default(false) }}"
-      - "WinPcap installed: {{ winpcap_install.changed | default(false) }}"
-      - "ESET Bridge installer: {{ eset_download_dir }}\\{{ eset_bridge_filename }}"
-      - "Rogue Detection Sensor installer: {{ eset_download_dir }}\\{{ rdsensor_filename }}"
+      - "Rogue Detection Sensor installer downloaded to: {{ eset_download_dir }}\\{{ rdsensor_filename }}"
+      - "WARNING: Install WinPcap 4.1+ or Npcap (with WinPcap compatibility mode) manually BEFORE installing RDS"
+      - "Npcap download: https://npcap.com/dist/npcap-1.79.exe (use /S /winpcap_mode=yes for silent install)"
+      - "After installing WinPcap/Npcap, install RDS manually from {{ eset_download_dir }}\\{{ rdsensor_filename }}"
