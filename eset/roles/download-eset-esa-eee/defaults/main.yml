@@ -6,6 +6,6 @@ eset_download_dir: "C:\\ESET_Installers"
 eset_esa_url: "https://download.eset.com/com/eset/apps/business/esa/windows/latest/esa_nt32nt64_enu.exe"
 eset_esa_filename: "esa_nt32nt64_enu.exe"
 
-# ESET Endpoint Encryption download URL and filename
-eset_eee_url: "https://download.eset.com/com/eset/apps/business/deslock/server/latest/eees_nt32.msi"
-eset_eee_filename: "eees_nt32.msi"
+# ESET Endpoint Encryption download URL and filename (all-in-one installer)
+eset_eee_url: "https://download.eset.com/com/eset/apps/business/deslock/server/latest/eeeserver_all_in_one.exe"
+eset_eee_filename: "eeeserver_all_in_one.exe"

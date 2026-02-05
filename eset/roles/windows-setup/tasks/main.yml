@@ -71,7 +71,13 @@
 - name: Restart Windows to apply security changes (if Chocolatey not installed)
   ansible.windows.win_reboot:
     reboot_timeout: 600
-    post_reboot_delay: 60
+    post_reboot_delay: 120
+  when: choco_check.rc != 0
+
+- name: Wait for system to be fully ready after reboot
+  ansible.windows.win_wait_for_connection:
+    timeout: 300
+    delay: 30
   when: choco_check.rc != 0
 
 - name: Install Chocolatey package manager
