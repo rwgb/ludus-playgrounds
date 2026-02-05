@@ -93,9 +93,28 @@
   register: choco_version
   changed_when: false
 
+- name: Install vcredist-all package via Chocolatey
+  ansible.windows.win_chocolatey:
+    name: vcredist-all
+    state: present
+  register: vcredist_install
+  retries: 3
+  delay: 10
+  until: vcredist_install is succeeded
+
+- name: Install Notepad++ via Chocolatey
+  ansible.windows.win_chocolatey:
+    name: notepadplusplus
+    state: present
+  register: npp_install
+  retries: 3
+  delay: 10
+  until: npp_install is succeeded
+
 - name: Display Windows setup completion
   ansible.builtin.debug:
     msg:
       - "Windows setup complete on {{ inventory_hostname }}"
       - "UAC, Defender, and Firewall disabled"
       - "Chocolatey version {{ choco_version.stdout.strip() }} installed"
+      - "Installed packages: vcredist-all, notepadplusplus"

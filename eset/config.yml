@@ -14,7 +14,7 @@ ludus:
       - linux-domain-join
       - install-eset
 
-  - vm_name: "{{ range_id }}-eee-esa"
+  - vm_name: "{{ range_id }}-domain-controller"
     hostname: "SRV01"
     template: win2022-server-x64-template
     vlan: 10
