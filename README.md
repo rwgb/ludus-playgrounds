@@ -8,16 +8,27 @@ This repository contains pre-configured Ludus range definitions with custom Ansi
 
 ## Available Playgrounds
 
-### [ESET Protect On-Prem](eset/)
+### [ESET Protect On-Prem](eset/) 🔒
 
 A comprehensive ESET endpoint security lab environment featuring:
-- **ESET Protect On-Prem** centralized management console
-- **Active Directory** domain with 3 domain controllers (eset.local)
-- **ESET Bridge**, **Rogue Detection Sensor**, and **ESET Inspector** server
-- **Windows Server 2022** infrastructure (1 primary DC, 2 alternate DCs)
-- **Windows 11 Enterprise** workstation
-- **10 custom Ansible roles** for automated deployment
-- **Testing mode support** with 300+ ESET cloud service allowlists
+
+**Infrastructure:**
+- **ESET Protect On-Prem** centralized management console (Ubuntu 24.04)
+- **Active Directory** domain (eset.local) with automated DC promotion
+- **5 Virtual Machines**: 1 Ubuntu server + 3 Windows Servers + 1 Windows 11 workstation
+- **Domain-joined Ubuntu** server using realm/sssd integration
+
+**ESET Components:**
+- ESET Bridge and Rogue Detection Sensor (SRV02)
+- ESET Inspector server (SRV03)
+- ESET Secure Authentication and Endpoint Encryption installers (SRV01)
+- Java 11 pre-installed for ESA compatibility
+
+**Automation:**
+- **7 custom Ansible roles** for automated deployment
+- **Testing mode** with 300+ ESET cloud service allowlists
+- **45-60 minute** fully automated deployment
+- Comprehensive troubleshooting documentation
 
 **Quick Start:**
 ```bash
@@ -27,14 +38,43 @@ make config
 make deploy
 ```
 
-**Key Features:**
-- Fully automated deployment (30-60 minutes)
-- Pre-configured domain user with admin privileges
-- ESET tools pre-downloaded and ready to install
-- Chocolatey package manager on all Windows systems
-- Comprehensive troubleshooting documentation
+**Access:**
+- ESET Console: https://10.2.10.10:8443/era
+- Domain: eset.local (Administrator/password)
+- VPN: WireGuard (ludus user wireguard)
 
-[→ Full Documentation](eset/README.md)
+[📖 **Full Documentation →**](eset/README.md)
+
+---
+
+### Game of Active Directory (GOAD) 🚧
+
+🚧 **Status:** Planned - Not yet implemented
+
+**Planned Features:**
+- Multi-domain Active Directory forest
+- Cross-domain trusts and delegation scenarios
+- Vulnerable configurations for penetration testing training
+- Automated user/group provisioning with realistic OU structure
+
+**Use Case:** Red team training, attack path simulation, privilege escalation testing
+
+[→ GOAD Reference Project](https://github.com/Orange-Cyberdefense/GOAD)
+
+---
+
+### Pentesting Playground 🚧
+
+🚧 **Status:** Planned - Not yet implemented
+
+**Planned Features:**
+- Kali Linux attack platform with pre-installed tools
+- Vulnerable web applications (DVWA, WebGoat, OWASP Juice Shop)
+- Misconfigured services for exploitation practice
+- Network segmentation for attack/defense scenarios
+- CTF-style challenges
+
+**Use Case:** Penetration testing training, security tool validation, exploit development
 
 ## Prerequisites
 

@@ -52,8 +52,8 @@ ludus:
     template: win2022-server-x64-template
     vlan: 10
     ip_last_octet: 23
-    ram_gb: 4
-    cpus: 2
+    ram_gb: 8
+    cpus: 4
     windows:
       sysprep: true
     domain:
