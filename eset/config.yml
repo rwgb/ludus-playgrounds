@@ -31,7 +31,7 @@ ludus:
       - install-java
       - download-eset-esa-eee
 
-  - vm_name: "{{ range_id }}-member-server"
+  - vm_name: "{{ range_id }}-eee-server"
     hostname: "SRV02"
     template: win2022-server-x64-template
     vlan: 10
@@ -45,35 +45,4 @@ ludus:
       role: member
     roles:
       - windows-setup
-      - install-eset-bridge-rds
-
-  - vm_name: "{{ range_id }}-inspector-server"
-    hostname: "SRV03"
-    template: win2022-server-x64-template
-    vlan: 10
-    ip_last_octet: 23
-    ram_gb: 8
-    cpus: 4
-    windows:
-      sysprep: true
-    domain:
-      fqdn: eset.local
-      role: member
-    roles:
-      - windows-setup
-      - download-eset-inspector
-
-  - vm_name: "{{ range_id }}-win11-workstation"
-    hostname: "WIN11"
-    template: win11-22h2-x64-enterprise-template
-    vlan: 10
-    ip_last_octet: 30
-    ram_gb: 4
-    cpus: 2
-    windows:
-      sysprep: true
-    domain:
-      fqdn: eset.local
-      role: member
-    roles:
-      - windows-setup
+      - download-eset-esa-eee
