@@ -14,6 +14,136 @@
   delay: 10
   until: inspector_download is succeeded
 
-- name: Display download location
+- name: Install MySQL via Chocolatey
+  ansible.windows.win_shell: |
+    choco install mysql -y --params="'/port:3306'"
+  register: mysql_install
+  failed_when: false
+
+- name: Wait for MySQL installation to complete and service to be created
+  ansible.windows.win_shell: |
+    $timeout = 120
+    $timer = [Diagnostics.Stopwatch]::StartNew()
+    while ($timer.Elapsed.TotalSeconds -lt $timeout) {
+        $service = Get-Service -Name MySQL -ErrorAction SilentlyContinue
+        $configExists = Test-Path "C:\tools\mysql\current\my.ini"
+        if ($service -and $configExists) {
+            Write-Output "MySQL is ready"
+            exit 0
+        }
+        Start-Sleep -Seconds 5
+    }
+    Write-Output "Timeout waiting for MySQL"
+    exit 0
+  when: mysql_install.rc == 0
+  changed_when: false
+
+- name: Set MySQL root password
+  ansible.windows.win_shell: |
+    $mysqlPath = "C:\tools\mysql\current\bin\mysql.exe"
+    $mysqladminPath = "C:\tools\mysql\current\bin\mysqladmin.exe"
+    
+    # Try to connect without password first (new installation)
+    $result = & $mysqlPath -u root --skip-password -e "SELECT 1;" 2>&1
+    if ($LASTEXITCODE -eq 0) {
+        # Set the password
+        & $mysqladminPath -u root password "{{ mysql_root_password }}"
+        Write-Output "Password set successfully"
+    } else {
+        # Try with the password (already set)
+        $result = & $mysqlPath -u root -p"{{ mysql_root_password }}" -e "SELECT 1;" 2>&1
+        if ($LASTEXITCODE -eq 0) {
+            Write-Output "Password already set"
+        } else {
+            Write-Output "Unable to set or verify password"
+        }
+    }
+  when: mysql_install.rc == 0
+  register: mysql_password_result
+  changed_when: "'Password set successfully' in mysql_password_result.stdout"
+  failed_when: false
+
+- name: Get MySQL config path
+  ansible.windows.win_shell: |
+    if (Test-Path "C:\tools\mysql\current\my.ini") {
+      Write-Output "C:\tools\mysql\current\my.ini"
+    } else {
+      Write-Output ""
+    }
+  register: mysql_dir
+  changed_when: false
+  failed_when: false
+
+- name: Set MySQL config path fact
+  ansible.builtin.set_fact:
+    mysql_config_path: "{{ mysql_dir.stdout_lines[0] | trim }}"
+  when: 
+    - mysql_dir.stdout_lines is defined
+    - mysql_dir.stdout_lines | length > 0
+    - mysql_dir.stdout_lines[0] | trim != ""
+
+- name: Backup original my.ini file
+  ansible.windows.win_copy:
+    src: "{{ mysql_config_path }}"
+    dest: "{{ mysql_config_path }}.backup"
+    remote_src: yes
+  when: mysql_config_path is defined
+
+- name: Configure MySQL for ESET Inspector
+  ansible.windows.win_shell: |
+    $configPath = "{{ mysql_config_path }}"
+    $bufferPoolSize = {{ (inspector_ram_gb * 0.8) | int }}
+    $logFileSize = {{ (inspector_ram_gb * 0.8 * 0.5) | int }}
+    
+    # Read the file content
+    $content = Get-Content $configPath -Raw
+    
+    # Function to add or update setting
+    function Set-MySQLSetting {
+        param($content, $setting, $value)
+        $pattern = "(?m)^$setting\s*=.*$"
+        if ($content -match $pattern) {
+            $content = $content -replace $pattern, "$setting=$value"
+        } else {
+            $content += "`n$setting=$value"
+        }
+        return $content
+    }
+    
+    # Configure all settings
+    $content = Set-MySQLSetting $content "open_files_limit" "30000"
+    $content = Set-MySQLSetting $content "innodb_flush_log_at_trx_commit" "0"
+    $content = Set-MySQLSetting $content "innodb_buffer_pool_size" "${bufferPoolSize}G"
+    $content = Set-MySQLSetting $content "innodb_log_file_size" "${logFileSize}G"
+    $content = Set-MySQLSetting $content "innodb_redo_log_capacity" "${bufferPoolSize}G"
+    $content = Set-MySQLSetting $content "event_scheduler" "ON"
+    $content = Set-MySQLSetting $content "local_infile" "1"
+    $content = Set-MySQLSetting $content "wait_timeout" "900"
+    $content = Set-MySQLSetting $content "max_connections" "300"
+    $content = Set-MySQLSetting $content "slow-query-log" "0"
+    
+    # Add disable-log-bin if not present
+    if ($content -notmatch "(?m)^disable-log-bin") {
+        $content += "`ndisable-log-bin"
+    }
+    
+    # Write back to file
+    Set-Content -Path $configPath -Value $content
+  when: mysql_config_path is defined
+
+- name: Restart MySQL service to apply configuration
+  ansible.windows.win_service:
+    name: MySQL
+    state: restarted
+  when: mysql_config_path is defined
+  ignore_errors: yes
+
+- name: Display configuration completion
   ansible.builtin.debug:
-    msg: "ESET Inspector downloaded to {{ eset_download_dir }}\\{{ eset_inspector_filename }}"
+    msg:
+      - "ESET Inspector server configuration complete"
+      - "ESET Inspector downloaded to {{ eset_download_dir }}\\{{ eset_inspector_filename }}"
+      - "MySQL installed and configured for ESET Inspector"
+      - "Configuration file: {{ mysql_config_path | default('Not found - MySQL may need manual configuration') }}"
+      - "Backup saved to: {{ mysql_config_path | default('N/A') }}.backup"
+      - "RAM allocated: {{ inspector_ram_gb }}GB, Buffer pool: {{ (inspector_ram_gb * 0.8) | int }}G"
