@@ -46,3 +46,19 @@ ludus:
     roles:
       - windows-setup
       - download-eset-esa-eee
+
+  - vm_name: "{{ range_id }}-eset-inspect"
+    hostname: "SRV03"
+    template: win2022-server-x64-template
+    vlan: 10
+    ip_last_octet: 23
+    ram_gb: 8
+    cpus: 4
+    windows:
+      sysprep: true
+    domain:
+      fqdn: eset.local
+      role: member
+    roles:
+      - windows-setup
+      - download-eset-inspector

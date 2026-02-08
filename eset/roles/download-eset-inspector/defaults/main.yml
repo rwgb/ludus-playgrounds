@@ -5,3 +5,9 @@ eset_download_dir: "C:\\ESET_Installers"
 # ESET Inspector download URL and filename
 eset_inspector_url: "https://download.eset.com/com/eset/apps/business/eei/server/latest/ei_server_nt64.msi"
 eset_inspector_filename: "ei_server_nt64.msi"
+
+# Inspector server RAM in GB (used for MySQL buffer pool calculation)
+inspector_ram_gb: 8
+
+# MySQL root password
+mysql_root_password: "InspectorRootPass!2024"
